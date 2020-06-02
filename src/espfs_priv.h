@@ -1,21 +1,38 @@
 #pragma once
 
+#include <stdbool.h>
 #include <stddef.h>
-#include "esp_partition.h"
-#include "espfsformat.h"
 
-struct EspFs {
-	const void *memAddr;
+#if !defined(ESPFS_TEST)
+#include "esp_spi_flash.h"
+#endif
+
+#include "espfs_format.h"
+
+typedef struct EspFs {
+#if !defined(ESPFS_TEST)
 	spi_flash_mmap_handle_t mmapHandle;
-	size_t length;
-	size_t numFiles;
-};
+#endif
+	const EspFsHeader *header;
+	EspFsHashTableEntry *hashTable;
+	bool cacheHashTable;
 
-struct EspFsFile {
-	EspFsHeader *header;
-	char decompressor;
-	int32_t posDecomp;
-	char *posStart;
-	char *posComp;
+	/* cached header data */
+	uint32_t numFiles;
+} EspFs;
+
+typedef struct EspFsFile {
+	const EspFsFileHeader *header;
+
+	/* cached header data */
+	uint8_t flags;
+	uint8_t compress;
+	uint16_t pathLen;
+	uint32_t fsSize;
+	uint32_t actualSize;
+
+	int32_t decompPos;
+	void *fsPtr;
+	void *fsStartPtr;
 	void *decompData;
-};
+} EspFsFile;

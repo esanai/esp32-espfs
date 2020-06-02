@@ -23,13 +23,13 @@ add_custom_command(
 
 set(espfs_image_bin_DEPS "")
 if (EXISTS "${PROJECT_DIR}/espfs.yaml")
-    list(APPEND "${PROJECT_DIR}/espfs.yaml")
+    list(APPEND espfs_image_bin_DEPS "${PROJECT_DIR}/espfs.yaml")
 endif()
 
 add_custom_command(
     OUTPUT espfs_image.bin
     COMMAND ${CMAKE_COMMAND} -E env PROJECT_DIR=${PROJECT_DIR} "${python}" "${COMPONENT_DIR}/tools/mkespfsimage.py" "${PROJECT_DIR}/${CONFIG_ESPFS_IMAGEROOTDIR}" espfs_image.bin
-    DEPENDS "${PROJECT_DIR}/${CONFIG_ESPFS_IMAGEROOTDIR}" requirements.stamp ${espfs_image_bin_DEPS}
+    DEPENDS "${PROJECT_DIR}/${CONFIG_ESPFS_IMAGEROOTDIR}" "requirements.stamp" "${espfs_image_bin_DEPS}"
     COMMENT "Building espfs image"
     USES_TERMINAL
     VERBATIM

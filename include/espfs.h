@@ -7,21 +7,21 @@
 extern "C" {
 #endif
 
+#define ESPFS_FLAG_DIR (1 << 0)
+#define ESPFS_FLAG_GZIP (1 << 1)
+#define ESPFS_COMPRESS_NONE 0
+#define ESPFS_COMPRESS_HEATSHRINK 1
+
 struct EspFsConfig {
     const void* memAddr;
-    const char* partLabel;
-};
-
-enum EspFsStatType {
-    ESPFS_TYPE_MISSING,
-    ESPFS_TYPE_FILE,
-    ESPFS_TYPE_DIR,
+    char* partLabel;
+    bool cacheHashTable;
 };
 
 struct EspFsStat {
-    enum EspFsStatType type;
-    int32_t size;
-    int8_t flags;
+    uint8_t flags;
+    uint8_t compress;
+    uint32_t size;
 };
 
 typedef struct EspFsConfig EspFsConfig;
@@ -30,16 +30,15 @@ typedef struct EspFsFile EspFsFile;
 typedef struct EspFsStat EspFsStat;
 
 EspFs* espFsInit(EspFsConfig* conf);
-void espFsDeinit(EspFs* fs);
-EspFsFile* espFsOpen(EspFs* fs, const char *fileName);
-int espFsStat(EspFs *fs, const char *fileName, EspFsStat *s);
-int espFsFlags(EspFsFile *fh);
-int espFsRead(EspFsFile *fh, char *buff, int len);
-int espFsSeek(EspFsFile *fh, long offset, int mode);
-bool espFsIsCompressed(EspFsFile *fh);
-int espFsAccess(EspFsFile *fh, void **buf);
-int espFsFilesize(EspFsFile *fh);
-void espFsClose(EspFsFile *fh);
+void espFsDeinit(EspFs* espFs);
+EspFsFile* espFsOpen(EspFs* file, const char *fileName);
+int espFsStat(EspFs *espFs, const char *fileName, EspFsStat *stat);
+int espFsFlags(EspFsFile *file);
+int espFsRead(EspFsFile *file, char *buf, int len);
+int espFsSeek(EspFsFile *file, long offset, int mode);
+int espFsAccess(EspFsFile *file, void **buf);
+int espFsFilesize(EspFsFile *file);
+void espFsClose(EspFsFile *file);
 
 #ifdef __cplusplus
 }

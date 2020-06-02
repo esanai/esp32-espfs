@@ -1,6 +1,5 @@
 //Heatshrink config for the decompressor.
-#ifndef HEATSHRINK_CONFIG_H
-#define HEATSHRINK_CONFIG_H
+#pragma once
 
 /* Should functionality assuming dynamic allocation be used? */
 #define HEATSHRINK_DYNAMIC_ALLOC 1
@@ -21,5 +20,3 @@
 
 /* Use indexing for faster compression. (This requires additional space.) */
 #define HEATSHRINK_USE_INDEX 1
-
-#endif

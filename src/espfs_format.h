@@ -1,5 +1,4 @@
-#ifndef ESPROFSFORMAT_H
-#define ESPROFSFORMAT_H
+#pragma once
 
 /*
 Stupid cpio-like tool to make read-only 'filesystems' that live on the flash SPI chip of the module.
@@ -14,20 +13,27 @@ Header, filename and file data is 32-bit aligned. The last file is indicated by 
 with the FLAG_LASTFILE flag set.
 */
 
+#include <stdint.h>
 
-#define FLAG_LASTFILE (1<<0)
-#define FLAG_GZIP (1<<1)
-#define COMPRESS_NONE 0
-#define COMPRESS_HEATSHRINK 1
-#define ESPFS_MAGIC 0x73665345
+#define ESPFS_MAGIC 0x32736645
 
 typedef struct {
-	int32_t magic;
-	int8_t flags;
-	int8_t compression;
-	int16_t nameLen;
-	int32_t fileLenComp;
-	int32_t fileLenDecomp;
+	uint32_t magic;
+	uint8_t majorVersion;
+	uint8_t minorVersion;
+	uint16_t reserved;
+	uint32_t numFiles;
 } __attribute__((packed)) EspFsHeader;
 
-#endif
+typedef struct {
+	uint32_t hash;
+	uint32_t offset;
+} __attribute__((packed)) EspFsHashTableEntry;
+
+typedef struct {
+	uint8_t flags;
+	uint8_t compress;
+	uint16_t pathLen;
+	uint32_t fsSize;
+	uint32_t actualSize;
+} __attribute__((packed)) EspFsFileHeader;

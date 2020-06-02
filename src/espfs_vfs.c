@@ -74,12 +74,12 @@ static int vfs_espfs_fstat(void* ctx, int fd, struct stat* st)
         return -1;
     }
 
-    EspFsFile *fp = efs->files[fd];
+    EspFsFile *file = efs->files[fd];
     memset(st, 0, sizeof(struct stat));
-    st->st_size = fp->header->fileLenDecomp;
+    st->st_size = file->actualSize;
     st->st_mode = S_IRUSR | S_IXUSR | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH | S_IFREG;
     st->st_spare4[0] = ESPFS_MAGIC;
-    st->st_spare4[1] = fp->header->flags;
+    st->st_spare4[1] = file->flags;
     return 0;
 }
 
@@ -95,7 +95,7 @@ static int vfs_espfs_stat(void* ctx, const char* path, struct stat* st)
     }
 
     st->st_mode = S_IRUSR | S_IXUSR | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH;
-    st->st_mode |= (s.type == ESPFS_TYPE_FILE) ? S_IFREG : S_IFDIR;
+    st->st_mode |= (s.flags == ESPFS_FLAG_DIR) ? S_IFDIR : S_IFREG;
     st->st_size = s.size;
     st->st_spare4[0] = ESPFS_MAGIC;
     st->st_spare4[1] = s.flags;
@@ -111,11 +111,11 @@ static ssize_t vfs_espfs_read(void* ctx, int fd, void* data, size_t size)
         return -1;
     }
 
-    EspFsFile *fp = efs->files[fd];
-    if (fp == NULL) {
+    EspFsFile *file = efs->files[fd];
+    if (file == NULL) {
         return -1;
     }
-    return espFsRead(fp, data, size);
+    return espFsRead(file, data, size);
 }
 
 
@@ -133,12 +133,12 @@ static off_t vfs_espfs_lseek(void* ctx, int fd, off_t size, int mode)
         return -1;
     }
 
-    EspFsFile *fp = efs->files[fd];
-    if (fp == NULL) {
+    EspFsFile *file = efs->files[fd];
+    if (file == NULL) {
         return -1;
     } 
 
-    return espFsSeek(fp, size, mode);
+    return espFsSeek(file, size, mode);
 }
 
 
@@ -150,12 +150,12 @@ static int vfs_espfs_close(void* ctx, int fd)
         return -1;
     }
 
-    EspFsFile *fp = efs->files[fd];
-    if (fp == NULL) {
+    EspFsFile *file = efs->files[fd];
+    if (file == NULL) {
         return -1;
     }
 
-    espFsClose(fp);
+    espFsClose(file);
     efs->files[fd] = NULL;
     return 0;
 }
